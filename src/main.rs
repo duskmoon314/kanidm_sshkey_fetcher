@@ -94,7 +94,7 @@ pub fn modify_authorized_keys(keys: Vec<String>) -> Result<(), ()> {
 
     let ssh_config_dir = PathBuf::from(shellexpand::tilde(SSH_CONFIG_DIR).into_owned());
     if !ssh_config_dir.exists() {
-        debug!("Creating ssh config directory");
+        debug!("Creating ssh config directory -- {ssh_config_dir:?}");
 
         std::fs::create_dir(&ssh_config_dir)
             .map_err(|e| error!("Failed to create ssh config directory -- {:?}", e))?;

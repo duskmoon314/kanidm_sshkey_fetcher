@@ -20,6 +20,7 @@ Options:
   -H, --url <ADDR>            The address of the kanidm server to connect to
   -C, --ca <CA_PATH>          The certificate file to use
   -c, --config <CONFIG_PATH>  The configuration file to use
+  -m, --modify                Whether to modify the authorized_keys file
   -h, --help                  Print help
   -V, --version               Print version
 
@@ -57,3 +58,30 @@ To fetch keys for dynamic users, the configuration file can be used to specify t
 AuthorizedKeysCommand /path/to/kanidm_sshkey_fetcher -c /path/to/config.toml
 AuthorizedKeysCommandUser nobody
 ```
+
+### Modifying `authorized_keys`
+
+The `-m` (`--modify`) option can be used to modify the `~/.ssh/authorized_keys` file of the user running the binary. This will append the fetched keys to the file, creating it if it does not exist.
+
+```console
+$ cat ~/.ssh/authorized_keys
+ssh-ed25519 ...
+ssh-ed25519 ...
+
+$ kanidm_sshkey_fetcher -H <kanidm_server_domain> -m <username0> <username1> ...
+
+$ cat ~/.ssh/authorized_keys
+ssh-ed25519 ...
+ssh-ed25519 ...
+
+# Managed Keys by kanidm_sshkey_fetcher
+
+ssh-rsa ...
+ssh-ed25519 ...
+
+# End of Managed Keys by kanidm_sshkey_fetcher
+```
+
+This option cannot be used with `sshd`'s `AuthorizedKeysCommand`, as it would require write permissions to the user's home directory, which is not possible for the `nobody` user.
+
+> Though `AuthorizedKeysCommandUser` can be set to a user with write permissions, it is not recommended as it can lead to security issues.
